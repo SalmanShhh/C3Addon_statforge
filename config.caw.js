@@ -14,7 +14,7 @@ export const minConstructVersion = undefined;
 export const author = "SalmanShh";
 export const website = "https://www.construct.net";
 export const documentation = "https://www.construct.net";
-export const description = "Manage buffs and debuffs";
+export const description = "A layered buff and debuff system. Attach to any object to give it named stats that can be boosted, reduced, timed, or chained together using a stack of modifiers.";
 export const category = ADDON_CATEGORY.ATTRIBUTES;
 
 export const hasDomside = false;
@@ -38,7 +38,24 @@ export const files = {
 };
 
 // categories that are not filled will use the folder name
-export const aceCategories = {};
+export const aceCategories = {
+  Buff_Management: "Buff Management",
+  Source_Tracking: "Source Tracking",
+  Tag_Control: "Tag Control",
+  Activation_Control: "Activation",
+  Timer_Control: "Timers",
+  Stat_Base: "Stat Base",
+  Buff_Links: "Buff Links",
+  Stack_Thresholds: "Stack Thresholds",
+  Events: "Events",
+  State_Checks: "State Checks",
+  Stat_Values: "Stat Values",
+  Buff_Info: "Buff Info",
+  Buff_Lists: "Buff Lists",
+  Tag_Lists: "Tag Lists",
+  Link_Rule_Counts: "Links & Rules",
+  Event_Context: "Event Context",
+};
 
 export const info = {
   // icon: "icon.svg",
@@ -65,7 +82,7 @@ export const info = {
     MustPreDraw: false,
 
     // PLUGIN object only
-    IsSingleGlobal: true,
+    IsSingleGlobal: false,
   },
   // PLUGIN only
   AddCommonACEs: {
@@ -79,45 +96,51 @@ export const info = {
 };
 
 export const properties = [
-  /*
+  // Index 0: autoTickTimers
   {
-    type: PROPERTY_TYPE.INTEGER,
-    id: "property_id",
+    type: PROPERTY_TYPE.CHECK,
+    id: "autoTickTimers",
+    name: "Auto-tick timers",
+    desc: "Automatically counts down temporary buff timers every frame. Disable if you want to advance timers manually.",
+    options: { initialValue: true },
+  },
+  // Index 1: overflowMode
+  {
+    type: PROPERTY_TYPE.COMBO,
+    id: "overflowMode",
+    name: "Overflow mode",
+    desc: "What happens when a stat total goes outside the Min/Max range. Clamp = stop at the boundary. Wrap = loop around. None = no limit.",
     options: {
-      initialValue: 0,
-      interpolatable: false,
-
-      // minValue: 0, // omit to disable
-      // maxValue: 100, // omit to disable
-
-      // for type combo only
-      // items: [
-      //   {itemId1: "item name1" },
-      //   {itemId2: "item name2" },
-      // ],
-
-      // dragSpeedMultiplier: 1, // omit to disable
-
-      // for type object only
-      // allowedPluginIds: ["Sprite", "<world>"],
-
-      // for type link only
-      // linkCallback: function(instOrObj) {},
-      // linkText: "Link Text",
-      // callbackType:
-      //   "for-each-instance"
-      //   "once-for-type"
-
-      // for type info only
-      // infoCallback: function(inst) {},
-
-      // for type projectfile only (plugins only, Addon SDK v2, r426+)
-      // A dropdown list from which any project file in the project can be chosen.
-      // The property value at runtime is a relative path to fetch the project file from.
-      // filter: ".txt", // optional: filter list by file extension (e.g., ".txt" to only list .txt files)
+      initialValue: "clamp",
+      items: [
+        { clamp: "Clamp" },
+        { wrap: "Wrap" },
+        { none: "None" },
+      ],
     },
-    name: "Property Name",
-    desc: "Property Description",
-  }
-  */
+  },
+  // Index 2: minValue
+  {
+    type: PROPERTY_TYPE.FLOAT,
+    id: "minValue",
+    name: "Min value",
+    desc: "The lowest a stat total can go when Overflow mode is Clamp or Wrap.",
+    options: { initialValue: -99999 },
+  },
+  // Index 3: maxValue
+  {
+    type: PROPERTY_TYPE.FLOAT,
+    id: "maxValue",
+    name: "Max value",
+    desc: "The highest a stat total can go when Overflow mode is Clamp or Wrap.",
+    options: { initialValue: 99999 },
+  },
+  // Index 4: debugMode
+  {
+    type: PROPERTY_TYPE.CHECK,
+    id: "debugMode",
+    name: "Debug mode",
+    desc: "Logs every buff change, link fire, and threshold trigger to the browser console. Turn off before releasing.",
+    options: { initialValue: false },
+  },
 ];
