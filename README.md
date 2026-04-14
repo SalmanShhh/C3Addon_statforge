@@ -1,17 +1,11 @@
 <img src="./src/icon.svg" width="100" /><br>
 # StatForge
 <i>A layered buff and debuff system. Attach to any object to give it named stats that can be boosted, reduced, timed, or chained together using a stack of modifiers.</i> <br>
-### Version 1.2.0.0
+### Version 1.2.1.0
 
-[<img src="https://placehold.co/200x50/4493f8/FFF?text=Download&font=montserrat" width="200"/>](https://github.com/SalmanShhh/C3Addon_statforge/releases/download/salmanshh_statforge-1.2.0.0.c3addon/salmanshh_statforge-1.2.0.0.c3addon)
+[<img src="https://placehold.co/200x50/4493f8/FFF?text=Download&font=montserrat" width="200"/>](https://github.com/SalmanShhh/C3Addon_statforge/releases/download/salmanshh_statforge-1.2.1.0.c3addon/salmanshh_statforge-1.2.1.0.c3addon)
 <br>
 <sub> [See all releases](https://github.com/SalmanShhh/C3Addon_statforge/releases) </sub> <br>
-
-#### What's New in 1.2.0.0
-- **Added:** - Add scripting API and refactor ACEs to use it
-- **Added:** - Update Guide/Documentation
-
-<sub>[View full changelog](#changelog)</sub>
 
 ---
 <b><u>Author:</u></b> SalmanShh <br>
@@ -202,6 +196,8 @@ npm run dev
 
 ---
 ## Changelog
+
+**1.2.1.0**
 
 **1.2.0.0**
 - **Added:** - Add scripting API and refactor ACEs to use it

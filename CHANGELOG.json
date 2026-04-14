@@ -13,5 +13,10 @@
     "added": "- Add scripting API and refactor ACEs to use it\n- Update Guide/Documentation",
     "changed": "",
     "fixed": ""
+  },
+  "1.2.1.0": {
+    "added": "",
+    "changed": "",
+    "fixed": ""
   }
 }
