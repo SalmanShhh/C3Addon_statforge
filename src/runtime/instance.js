@@ -563,7 +563,7 @@ export default function (parentClass) {
         buffProps.push({ name: `$${b.id}`, value: `${b.stat} | ${b.mode} ${b.value} | active:${b.active} | ${remaining}` });
       }
       if (buffProps.length === 0) buffProps.push({ name: "$empty", value: "no buffs" });
-      sections.push({ title: `$${this.behaviorType.name} — Buff Stack`, properties: buffProps });
+      sections.push({ title: `$${this.behaviorType.name} - Buff Stack`, properties: buffProps });
 
       // Stat totals
       const statKeys = new Set();
