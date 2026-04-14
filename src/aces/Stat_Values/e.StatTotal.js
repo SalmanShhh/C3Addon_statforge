@@ -9,5 +9,5 @@ export const config = {
 export const expose = false;
 
 export default function (stat) {
-  return this._computeStatTotal(stat);
+  return this.statTotal(stat);
 }

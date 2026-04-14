@@ -10,5 +10,5 @@ export const config = {
 export const expose = false;
 
 export default function (buffId) {
-  return this._buffMap.has(buffId);
+  return this.hasBuff(buffId);
 }

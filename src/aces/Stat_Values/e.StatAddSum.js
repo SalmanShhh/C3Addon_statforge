@@ -9,9 +9,5 @@ export const config = {
 export const expose = false;
 
 export default function (stat) {
-  let sum = 0;
-  for (const buff of this._buffMap.values()) {
-    if (buff.stat === stat && buff.active && buff.mode === "add") sum += buff.value;
-  }
-  return sum;
+  return this.statAddSum(stat);
 }

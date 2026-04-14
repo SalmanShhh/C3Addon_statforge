@@ -10,8 +10,5 @@ export const config = {
 export const expose = false;
 
 export default function (stat) {
-  for (const buff of this._buffMap.values()) {
-    if (buff.stat === stat) return true;
-  }
-  return false;
+  return this.hasBuffOnStat(stat);
 }

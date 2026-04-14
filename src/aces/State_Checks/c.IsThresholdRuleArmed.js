@@ -10,6 +10,5 @@ export const config = {
 export const expose = false;
 
 export default function (ruleId) {
-  const rule = this._thresholdMap.get(ruleId);
-  return rule ? rule.armed : false;
+  return this.isThresholdRuleArmed(ruleId);
 }

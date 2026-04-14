@@ -9,5 +9,5 @@ export const config = {
 export const expose = false;
 
 export default function (buffId) {
-  return this._buffMap.get(buffId)?.tags.size ?? 0;
+  return this.countBuffTags(buffId);
 }

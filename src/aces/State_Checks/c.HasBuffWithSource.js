@@ -10,8 +10,5 @@ export const config = {
 export const expose = false;
 
 export default function (source) {
-  for (const buff of this._buffMap.values()) {
-    if (buff.source === source) return true;
-  }
-  return false;
+  return this.hasBuffWithSource(source);
 }

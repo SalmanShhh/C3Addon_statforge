@@ -11,6 +11,5 @@ export const config = {
 export const expose = false;
 
 export default function (buffId, source) {
-  const buff = this._buffMap.get(buffId);
-  return buff ? buff.source === source : false;
+  return this.buffSourceMatches(buffId, source);
 }

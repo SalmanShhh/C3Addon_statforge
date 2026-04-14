@@ -9,5 +9,5 @@ export const config = {
 export const expose = false;
 
 export default function (stat) {
-  return this._statBaseMap.get(stat) ?? 0;
+  return this.statBase(stat);
 }

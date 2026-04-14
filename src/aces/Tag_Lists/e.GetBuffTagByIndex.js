@@ -10,7 +10,5 @@ export const config = {
 export const expose = false;
 
 export default function (buffId, index) {
-  const buff = this._buffMap.get(buffId);
-  if (!buff) return "";
-  return this._tagsToArray(buff.tags)[index] ?? "";
+  return this.getBuffTagByIndex(buffId, index);
 }

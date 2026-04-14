@@ -7,7 +7,5 @@ export const config = {
 export const expose = false;
 
 export default function () {
-  let count = 0;
-  for (const rule of this._thresholdMap.values()) { if (rule.armed) count++; }
-  return count;
+  return this.countArmedRules();
 }

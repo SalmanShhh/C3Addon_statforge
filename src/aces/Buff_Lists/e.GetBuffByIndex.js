@@ -9,6 +9,5 @@ export const config = {
 export const expose = false;
 
 export default function (index) {
-  const keys = Array.from(this._buffMap.keys());
-  return keys[index] ?? "";
+  return this.getBuffByIndex(index);
 }

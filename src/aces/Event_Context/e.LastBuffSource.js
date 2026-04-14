@@ -7,5 +7,5 @@ export const config = {
 export const expose = false;
 
 export default function () {
-  return this._lastBuffSource;
+  return this.lastBuffSource();
 }

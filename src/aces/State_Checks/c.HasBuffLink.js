@@ -10,5 +10,5 @@ export const config = {
 export const expose = false;
 
 export default function (linkId) {
-  return this._linkMap.has(linkId);
+  return this.hasBuffLink(linkId);
 }

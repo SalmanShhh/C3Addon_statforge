@@ -1639,6 +1639,16 @@
               }
             }
           },
+          "StatMultiplierPercent": {
+            "translated-name": "StatMultiplierPercent",
+            "description": "Returns the combined multiplier for the stat as a percentage bonus. For example, a multiplier of 1.5 returns 50, and 1.0 (no bonus) returns 0.",
+            "params": {
+              "stat": {
+                "name": "Stat",
+                "desc": "The stat name."
+              }
+            }
+          },
           "StatTotal": {
             "translated-name": "StatTotal",
             "description": "Returns the fully computed total of the named stat: base + add buffs, then multiplied by multiply buffs, then overridden if any override buffs are active. This is the main value to use in your game logic.",

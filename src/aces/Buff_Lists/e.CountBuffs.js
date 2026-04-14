@@ -7,5 +7,5 @@ export const config = {
 export const expose = false;
 
 export default function () {
-  return this._buffMap.size;
+  return this.countBuffs();
 }

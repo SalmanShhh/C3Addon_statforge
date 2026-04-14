@@ -9,7 +9,5 @@ export const config = {
 export const expose = false;
 
 export default function (buffId) {
-  const buff = this._buffMap.get(buffId);
-  if (!buff || !buff.temporary) return 0;
-  return Math.max(0, buff.duration - buff.elapsed);
+  return this.buffRemainingTime(buffId);
 }

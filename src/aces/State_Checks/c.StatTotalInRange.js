@@ -12,6 +12,5 @@ export const config = {
 export const expose = false;
 
 export default function (stat, minVal, maxVal) {
-  const total = this._computeStatTotal(stat);
-  return total >= minVal && total <= maxVal;
+  return this.statTotalInRange(stat, minVal, maxVal);
 }

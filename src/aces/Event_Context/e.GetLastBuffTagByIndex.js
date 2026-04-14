@@ -9,5 +9,5 @@ export const config = {
 export const expose = false;
 
 export default function (index) {
-  return this._lastBuffTags[index] ?? "";
+  return this.getLastBuffTagByIndex(index);
 }

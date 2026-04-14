@@ -9,7 +9,5 @@ export const config = {
 export const expose = false;
 
 export default function (tag) {
-  let count = 0;
-  for (const buff of this._buffMap.values()) { if (buff.tags.has(tag) && buff.active) count++; }
-  return count;
+  return this.countActiveBuffsByTag(tag);
 }

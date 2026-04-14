@@ -24,7 +24,8 @@ StatForge is a layered buff and debuff system for Construct 3. Attach it to any 
 16. [Triggers Reference](#16-triggers-reference)
 17. [Game Use Cases](#17-game-use-cases)
 18. [C3 Debugger](#18-c3-debugger)
-19. [Tips and Common Mistakes](#19-tips-and-common-mistakes)
+19. [Scripting (C3 Script / JavaScript)](#19-scripting-c3-script--javascript)
+20. [Tips and Common Mistakes](#20-tips-and-common-mistakes)
 
 ---
 
@@ -280,6 +281,7 @@ Remove the frozen buff and the speed returns to 165 automatically.
 | `StatBase("speed")` | The base value set by `Set stat base value` |
 | `StatAddSum("speed")` | Sum of all active `add` buffs only |
 | `StatMultiplier("speed")` | The multiplier factor, e.g. `1.5` for +50% |
+| `StatMultiplierPercent("speed")` | The multiplier bonus as a percentage, e.g. `50` for +50% |
 | `StatTotal("speed")` | The full final result |
 
 ---
@@ -833,6 +835,7 @@ Event: System → On state loaded
 | `StatBase(stat)` | number | The raw base value before any buffs. |
 | `StatAddSum(stat)` | number | Sum of all active `add`-mode buff values only. |
 | `StatMultiplier(stat)` | number | The combined multiplier factor (e.g. `1.5` for +50%). |
+| `StatMultiplierPercent(stat)` | number | The multiplier bonus as a percentage (e.g. `50` for +50%). `1.5` multiplier → `50`. Returns `0` when no multiply buffs are active. |
 
 ### Buff Info
 
@@ -1595,7 +1598,266 @@ One row per unique stat that has at least one buff or a base value set:
 
 ---
 
-## 19. Tips and Common Mistakes
+## 19. Scripting (C3 Script / JavaScript)
+
+StatForge exposes a full scripting API for use in C3's **Script** event block or in any `.js` file added to the project. This lets you drive the buff system entirely from JavaScript without using event sheet actions.
+
+### Accessing the behavior
+
+From a Script event or a JS file, get the StatForge behavior through the instance's `behaviors` object:
+
+```js
+// Inside a Script event on an object that has StatForge:
+const sf = this.behaviors.StatForge;
+
+// Or by fetching an instance from the runtime:
+const player = runtime.objects.Player.getFirstInstance();
+const sf = player.behaviors.StatForge;
+```
+
+The name used (`StatForge`) is the **behavior's name in your project**, not the addon ID. If you renamed it in the Properties panel it will be different.
+
+### Calling actions from script
+
+All actions are directly callable because every action ACE has `expose: true`. Method names are **PascalCase** matching the ACE ID (derived from the file name):
+
+```js
+// Add a permanent buff
+sf.AddBuff("sword_bonus", "attack", 30, "equipment,weapon");
+
+// Add a timed buff
+sf.AddTemporaryBuff("speed_potion", "speed", 40, 8, "potion");
+
+// Add a buff with full control (mode is a 0-based index: 0=add, 1=multiply, 2=override)
+sf.AddBuffFull("rage", "attack", 50, 0, "status", "encounter");
+
+// Remove a buff
+sf.RemoveBuff("sword_bonus");
+
+// Clear all buffs
+sf.ClearAllBuffs();
+
+// Set a stat base value
+sf.SetStatBase("hp", 200);
+
+// Add a timed buff from source
+sf.AddTemporaryBuffWithSource("frost_slow", "speed", -30, 5, "debuff", "ice_mage");
+
+// Remove all buffs from a source
+sf.RemoveBuffsBySource("ice_mage");
+
+// Activate/deactivate a buff
+sf.SetBuffActive("my_buff", false);
+
+// Toggle a buff
+sf.ToggleBuffActive("stealth_penalty");
+```
+
+> **Combo parameters are 0-based indices in script.** `AddBuffFull` takes `mode` as `0` (add), `1` (multiply), or `2` (override) — not the string `"add"`. This applies to any action with a dropdown (combo) parameter.
+
+### Reading state from script
+
+Query methods are **camelCase** and return values directly — no event sheet needed:
+
+```js
+// Stat values
+const speed      = sf.statTotal("speed");              // fully computed total
+const base       = sf.statBase("speed");               // base value only
+const addBonus   = sf.statAddSum("speed");             // sum of add-mode buffs
+const multiplier = sf.statMultiplier("speed");         // e.g. 1.5 for +50%
+const multPct    = sf.statMultiplierPercent("speed");  // e.g. 50 for +50%
+
+// Buff existence / state
+const exists   = sf.hasBuff("my_buff");          // boolean
+const active   = sf.isBuffActive("my_buff");     // boolean
+const timed    = sf.isBuffTemporary("my_buff");  // boolean
+const paused   = sf.isTimerPaused("my_buff");    // boolean
+
+// Buff info
+const value     = sf.buffValue("my_buff");        // number
+const stat      = sf.buffStat("my_buff");         // string
+const mode      = sf.buffMode("my_buff");         // "add" | "multiply" | "override"
+const source    = sf.buffSource("my_buff");       // string
+const remaining = sf.buffRemainingTime("my_buff"); // seconds remaining
+const elapsed   = sf.buffElapsedTime("my_buff");   // seconds elapsed
+const duration  = sf.buffDuration("my_buff");      // total duration
+const state     = sf.buffActiveState("my_buff");   // 1=active, 0=inactive, -1=not found
+
+// Tag checks
+const hasTag    = sf.buffHasTag("my_buff", "fire");       // boolean
+const anyTag    = sf.hasBuffWithTag("fire");               // boolean
+const activeTag = sf.hasActiveBuffWithTag("fire");         // boolean
+
+// Source checks
+const hasSrc    = sf.hasBuffWithSource("item_id");         // boolean
+const srcMatch  = sf.buffSourceMatches("my_buff", "item"); // boolean
+
+// Stat checks
+const onStat    = sf.hasBuffOnStat("speed");               // boolean
+const activeStat = sf.hasActiveBuffOnStat("speed");        // boolean
+const inRange   = sf.statTotalInRange("hp", 0, 100);       // boolean
+const above     = sf.stackAbove("combo", 5);               // boolean
+const below     = sf.stackBelow("combo", 5);               // boolean
+
+// Link and rule checks
+const hasLink   = sf.hasBuffLink("my_link");               // boolean
+const hasRule   = sf.hasThresholdRule("my_rule");          // boolean
+const armed     = sf.isThresholdRuleArmed("my_rule");      // boolean
+
+// Counts
+const total     = sf.countBuffs();
+const active    = sf.countActiveBuffs();
+const byTag     = sf.countBuffsByTag("debuff");
+const activeTag = sf.countActiveBuffsByTag("debuff");
+const onStat    = sf.countBuffsOnStat("speed");
+const activeStat = sf.countActiveBuffsOnStat("speed");
+const bySrc     = sf.countBuffsBySource("item_id");
+const links     = sf.countBuffLinks();
+const rules     = sf.countThresholdRules();
+const armedN    = sf.countArmedRules();
+
+// Indexed access (pair with count methods)
+const buffId  = sf.getBuffByIndex(0);
+const tagBuff = sf.getBuffByTagIndex("debuff", 0);
+const srcBuff = sf.getBuffBySourceIndex("item_id", 0);
+const statBuff = sf.getBuffOnStatByIndex("speed", 0);
+
+// Tag lists on a specific buff
+const tagCount = sf.countBuffTags("my_buff");
+const tag0     = sf.getBuffTagByIndex("my_buff", 0);
+```
+
+### Listening to events from script
+
+Use C3 Script's `addEventListener` on the behavior instance to react to the same triggers as the event sheet:
+
+```js
+sf.addEventListener("OnBuffAdded", () => {
+  console.log("Buff added:", sf.lastBuffID(), "→", sf.lastBuffStat());
+});
+
+sf.addEventListener("OnStatChanged", () => {
+  if (sf.lastChangedStat() === "hp") {
+    updateHPBar(sf.lastChangedStatTotal());
+  }
+});
+
+sf.addEventListener("OnBuffExpired", () => {
+  console.log("Expired:", sf.lastBuffID());
+});
+
+sf.addEventListener("OnThresholdReached", () => {
+  console.log("Rule fired:", sf.lastRuleID(), "at", sf.lastRuleThreshold());
+});
+```
+
+Event context accessors are the same camelCase methods used in the query API:
+
+```js
+// Inside any event listener:
+sf.lastBuffID()             // ID of the most recent buff event
+sf.lastBuffStat()           // stat of the most recent buff event
+sf.lastBuffValue()          // value of the most recent buff event
+sf.lastBuffMode()           // mode of the most recent buff event
+sf.lastBuffSource()         // source of the most recent buff event
+sf.countLastBuffTags()      // number of tags on the most recent buff
+sf.getLastBuffTagByIndex(i) // tag at index i from the most recent buff event
+sf.lastChangedStat()        // stat from the most recent OnStatChanged
+sf.lastChangedStatTotal()   // new total from the most recent OnStatChanged
+sf.lastFiredLinkID()        // link ID from the most recent OnBuffLinkFired
+sf.lastFiredLinkSourceBuff() // source buff from the most recent link fire
+sf.lastFiredLinkTargetBuff() // target buff from the most recent link fire
+sf.lastRuleID()             // rule ID from the most recent OnThresholdReached
+sf.lastRuleWatchStat()      // watched stat from the most recent threshold event
+sf.lastRuleThreshold()      // threshold value from the most recent threshold event
+sf.lastRuleTargetBuff()     // target buff from the most recent threshold event
+sf.lastRuleAction()         // action string from the most recent threshold event
+```
+
+### Looping over buffs in script
+
+The Count + Index pattern used in the event sheet works identically in JS:
+
+```js
+// Loop over all buffs
+for (let i = 0; i < sf.countBuffs(); i++) {
+  const id     = sf.getBuffByIndex(i);
+  const value  = sf.buffValue(id);
+  const stat   = sf.buffStat(id);
+  console.log(`${id}: ${stat} ${value}`);
+}
+
+// Loop over debuffs only
+for (let i = 0; i < sf.countBuffsByTag("debuff"); i++) {
+  const id = sf.getBuffByTagIndex("debuff", i);
+  console.log("Debuff:", id, "remaining:", sf.buffRemainingTime(id).toFixed(1) + "s");
+}
+```
+
+### Complete example — game script class using StatForge
+
+```js
+// In a Scripts file loaded by your project
+
+class PlayerController {
+  constructor(playerInst) {
+    this.inst = playerInst;
+    this.sf   = playerInst.behaviors.StatForge;
+    this._setupBaseStats();
+    this._listenForEvents();
+  }
+
+  _setupBaseStats() {
+    this.sf.SetStatBase("hp",      200);
+    this.sf.SetStatBase("attack",  50);
+    this.sf.SetStatBase("speed",   150);
+  }
+
+  _listenForEvents() {
+    this.sf.addEventListener("OnStatChanged", () => {
+      if (this.sf.lastChangedStat() === "hp") {
+        this._onHpChanged(this.sf.lastChangedStatTotal());
+      }
+    });
+    this.sf.addEventListener("OnBuffExpired", () => {
+      console.log(`[PlayerCtrl] buff expired: ${this.sf.lastBuffID()}`);
+    });
+  }
+
+  _onHpChanged(newHp) {
+    // Update HP bar, check death, etc.
+    if (newHp <= 0) this._die();
+  }
+
+  equipWeapon(slotId, attackBonus, tags = "equipment") {
+    // Using slot ID means equipping a new weapon replaces the old one
+    this.sf.AddBuff(slotId, "attack", attackBonus, tags);
+  }
+
+  unequipWeapon(slotId) {
+    this.sf.RemoveBuff(slotId);
+  }
+
+  applyPoison(stackId, dps, duration) {
+    const tags = this.sf.countBuffsByTag("poison") < 5 ? "poison,debuff" : null;
+    if (tags) this.sf.AddTemporaryBuff(stackId, "poison_dps", dps, duration, tags);
+  }
+
+  clearDebuffs() {
+    this.sf.RemoveBuffsByTag("debuff");
+  }
+
+  getSpeed() { return this.sf.statTotal("speed"); }
+  getAttack() { return this.sf.statTotal("attack"); }
+  getHP()     { return this.sf.statTotal("hp");     }
+
+  _die() { /* handle death */ }
+}
+```
+
+---
+
+## 20. Tips and Common Mistakes
 
 - **Buff IDs are per-instance, not global.** Two different Player instances can both have a buff called `"sword_bonus"` - they don't interfere with each other. But one Player instance can only have one buff called `"sword_bonus"` at a time.
 

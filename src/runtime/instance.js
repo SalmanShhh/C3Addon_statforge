@@ -302,6 +302,168 @@ export default function (parentClass) {
       }
     }
 
+    // ─── Private helper ───────────────────────────────────────────────────────
+    _tagsToArray(tags) {
+      return Array.from(tags);
+    }
+
+    // ─── Public scripting API ─────────────────────────────────────────────────
+    // These methods are callable from C3 Script (inst.behaviors.StatForge.statTotal("attack"), etc.)
+
+    // Stat values
+    /** @param {string} stat @returns {number} */
+    statTotal(stat) { return this._computeStatTotal(stat); }
+    /** @param {string} stat @returns {number} */
+    statBase(stat) { return this._statBaseMap.get(stat) ?? 0; }
+    /** @param {string} stat @returns {number} */
+    statAddSum(stat) {
+      let sum = 0;
+      for (const b of this._buffMap.values()) {
+        if (b.stat === stat && b.active && b.mode === "add") sum += b.value;
+      }
+      return sum;
+    }
+    /** @param {string} stat @returns {number} */
+    statMultiplier(stat) {
+      let sum = 0;
+      for (const b of this._buffMap.values()) {
+        if (b.stat === stat && b.active && b.mode === "multiply") sum += b.value;
+      }
+      return 1 + sum / 100;
+    }
+    /** @param {string} stat @returns {number} */
+    statMultiplierPercent(stat) {
+      return (this.statMultiplier(stat) - 1) * 100;
+    }
+
+    // Buff info
+    /** @param {string} buffId @returns {number} 1=active, 0=disabled, -1=not found */
+    buffActiveState(buffId) { const b = this._buffMap.get(buffId); if (!b) return -1; return b.active ? 1 : 0; }
+    /** @param {string} buffId @returns {number} */
+    buffDuration(buffId) { const b = this._buffMap.get(buffId); return (b && b.temporary) ? b.duration : 0; }
+    /** @param {string} buffId @returns {number} */
+    buffElapsedTime(buffId) { const b = this._buffMap.get(buffId); return (b && b.temporary) ? b.elapsed : 0; }
+    /** @param {string} buffId @returns {number} */
+    buffRemainingTime(buffId) { const b = this._buffMap.get(buffId); if (!b || !b.temporary) return 0; return Math.max(0, b.duration - b.elapsed); }
+    /** @param {string} buffId @returns {string} "add" | "multiply" | "override" */
+    buffMode(buffId) { return this._buffMap.get(buffId)?.mode ?? ""; }
+    /** @param {string} buffId @returns {string} */
+    buffSource(buffId) { return this._buffMap.get(buffId)?.source ?? ""; }
+    /** @param {string} buffId @returns {string} */
+    buffStat(buffId) { return this._buffMap.get(buffId)?.stat ?? ""; }
+    /** @param {string} buffId @returns {number} */
+    buffValue(buffId) { return this._buffMap.get(buffId)?.value ?? 0; }
+
+    // Buff state checks
+    /** @param {string} buffId @returns {boolean} */
+    hasBuff(buffId) { return this._buffMap.has(buffId); }
+    /** @param {string} buffId @returns {boolean} */
+    isBuffActive(buffId) { return this._buffMap.get(buffId)?.active ?? false; }
+    /** @param {string} buffId @returns {boolean} */
+    isBuffTemporary(buffId) { return this._buffMap.get(buffId)?.temporary ?? false; }
+    /** @param {string} buffId @returns {boolean} */
+    isTimerPaused(buffId) { return this._buffMap.get(buffId)?.timerPaused ?? false; }
+    /** @param {string} buffId @param {string} tag @returns {boolean} */
+    buffHasTag(buffId, tag) { return this._buffMap.get(buffId)?.tags.has(tag) ?? false; }
+    /** @param {string} buffId @param {string} source @returns {boolean} */
+    buffSourceMatches(buffId, source) { const b = this._buffMap.get(buffId); return b ? b.source === source : false; }
+    /** @param {string} tag @returns {boolean} */
+    hasBuffWithTag(tag) { for (const b of this._buffMap.values()) { if (b.tags.has(tag)) return true; } return false; }
+    /** @param {string} tag @returns {boolean} */
+    hasActiveBuffWithTag(tag) { for (const b of this._buffMap.values()) { if (b.tags.has(tag) && b.active) return true; } return false; }
+    /** @param {string} stat @returns {boolean} */
+    hasBuffOnStat(stat) { for (const b of this._buffMap.values()) { if (b.stat === stat) return true; } return false; }
+    /** @param {string} stat @returns {boolean} */
+    hasActiveBuffOnStat(stat) { for (const b of this._buffMap.values()) { if (b.stat === stat && b.active) return true; } return false; }
+    /** @param {string} source @returns {boolean} */
+    hasBuffWithSource(source) { for (const b of this._buffMap.values()) { if (b.source === source) return true; } return false; }
+    /** @param {string} linkId @returns {boolean} */
+    hasBuffLink(linkId) { return this._linkMap.has(linkId); }
+    /** @param {string} ruleId @returns {boolean} */
+    hasThresholdRule(ruleId) { return this._thresholdMap.has(ruleId); }
+    /** @param {string} ruleId @returns {boolean} */
+    isThresholdRuleArmed(ruleId) { return this._thresholdMap.get(ruleId)?.armed ?? false; }
+    /** @param {string} statId @param {number} value @returns {boolean} */
+    stackAbove(statId, value) { return this._computeStatTotal(statId) > value; }
+    /** @param {string} statId @param {number} value @returns {boolean} */
+    stackBelow(statId, value) { return this._computeStatTotal(statId) < value; }
+    /** @param {string} stat @param {number} minVal @param {number} maxVal @returns {boolean} */
+    statTotalInRange(stat, minVal, maxVal) { const t = this._computeStatTotal(stat); return t >= minVal && t <= maxVal; }
+
+    // Buff list counts & indexed access
+    /** @returns {number} */
+    countBuffs() { return this._buffMap.size; }
+    /** @returns {number} */
+    countActiveBuffs() { let n = 0; for (const b of this._buffMap.values()) { if (b.active) n++; } return n; }
+    /** @param {string} tag @returns {number} */
+    countBuffsByTag(tag) { let n = 0; for (const b of this._buffMap.values()) { if (b.tags.has(tag)) n++; } return n; }
+    /** @param {string} tag @returns {number} */
+    countActiveBuffsByTag(tag) { let n = 0; for (const b of this._buffMap.values()) { if (b.tags.has(tag) && b.active) n++; } return n; }
+    /** @param {string} stat @returns {number} */
+    countBuffsOnStat(stat) { let n = 0; for (const b of this._buffMap.values()) { if (b.stat === stat) n++; } return n; }
+    /** @param {string} stat @returns {number} */
+    countActiveBuffsOnStat(stat) { let n = 0; for (const b of this._buffMap.values()) { if (b.stat === stat && b.active) n++; } return n; }
+    /** @param {string} source @returns {number} */
+    countBuffsBySource(source) { let n = 0; for (const b of this._buffMap.values()) { if (b.source === source) n++; } return n; }
+    /** @param {number} index @returns {string} */
+    getBuffByIndex(index) { return Array.from(this._buffMap.keys())[index] ?? ""; }
+    /** @param {string} tag @param {number} index @returns {string} */
+    getBuffByTagIndex(tag, index) { let i = 0; for (const b of this._buffMap.values()) { if (b.tags.has(tag)) { if (i === index) return b.id; i++; } } return ""; }
+    /** @param {string} source @param {number} index @returns {string} */
+    getBuffBySourceIndex(source, index) { let i = 0; for (const b of this._buffMap.values()) { if (b.source === source) { if (i === index) return b.id; i++; } } return ""; }
+    /** @param {string} stat @param {number} index @returns {string} */
+    getBuffOnStatByIndex(stat, index) { let i = 0; for (const b of this._buffMap.values()) { if (b.stat === stat) { if (i === index) return b.id; i++; } } return ""; }
+
+    // Tag lists
+    /** @param {string} buffId @returns {number} */
+    countBuffTags(buffId) { return this._buffMap.get(buffId)?.tags.size ?? 0; }
+    /** @param {string} buffId @param {number} index @returns {string} */
+    getBuffTagByIndex(buffId, index) { const b = this._buffMap.get(buffId); if (!b) return ""; return this._tagsToArray(b.tags)[index] ?? ""; }
+
+    // Link & rule counts
+    /** @returns {number} */
+    countBuffLinks() { return this._linkMap.size; }
+    /** @returns {number} */
+    countThresholdRules() { return this._thresholdMap.size; }
+    /** @returns {number} */
+    countArmedRules() { let n = 0; for (const r of this._thresholdMap.values()) { if (r.armed) n++; } return n; }
+
+    // Event context (read during On buff added / On stat changed / On threshold reached / etc.)
+    /** @returns {string} */
+    lastBuffID() { return this._lastBuffID; }
+    /** @returns {string} */
+    lastBuffStat() { return this._lastBuffStat; }
+    /** @returns {number} */
+    lastBuffValue() { return this._lastBuffValue; }
+    /** @returns {string} */
+    lastBuffMode() { return this._lastBuffMode; }
+    /** @returns {string} */
+    lastBuffSource() { return this._lastBuffSource; }
+    /** @returns {number} */
+    countLastBuffTags() { return this._lastBuffTags.length; }
+    /** @param {number} index @returns {string} */
+    getLastBuffTagByIndex(index) { return this._lastBuffTags[index] ?? ""; }
+    /** @returns {string} */
+    lastChangedStat() { return this._lastChangedStat; }
+    /** @returns {number} */
+    lastChangedStatTotal() { return this._lastChangedStatTotal; }
+    /** @returns {string} */
+    lastFiredLinkID() { return this._lastFiredLinkID; }
+    /** @returns {string} */
+    lastFiredLinkSourceBuff() { return this._lastFiredLinkSourceBuff; }
+    /** @returns {string} */
+    lastFiredLinkTargetBuff() { return this._lastFiredLinkTargetBuff; }
+    /** @returns {string} */
+    lastRuleID() { return this._lastRuleID; }
+    /** @returns {string} */
+    lastRuleWatchStat() { return this._lastRuleWatchStat; }
+    /** @returns {number} */
+    lastRuleThreshold() { return this._lastRuleThreshold; }
+    /** @returns {string} */
+    lastRuleTargetBuff() { return this._lastRuleTargetBuff; }
+    /** @returns {string} */
+    lastRuleAction() { return this._lastRuleAction; }
+
     // ─── Save / Load ──────────────────────────────────────────────────────────
     _saveToJson() {
       const buffs = [];

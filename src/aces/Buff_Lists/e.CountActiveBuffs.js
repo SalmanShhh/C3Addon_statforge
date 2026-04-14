@@ -7,7 +7,5 @@ export const config = {
 export const expose = false;
 
 export default function () {
-  let count = 0;
-  for (const buff of this._buffMap.values()) { if (buff.active) count++; }
-  return count;
+  return this.countActiveBuffs();
 }

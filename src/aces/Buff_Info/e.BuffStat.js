@@ -9,5 +9,5 @@ export const config = {
 export const expose = false;
 
 export default function (buffId) {
-  return this._buffMap.get(buffId)?.stat ?? "";
+  return this.buffStat(buffId);
 }

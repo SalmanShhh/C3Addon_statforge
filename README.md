@@ -1,14 +1,15 @@
 <img src="./src/icon.svg" width="100" /><br>
 # StatForge
 <i>A layered buff and debuff system. Attach to any object to give it named stats that can be boosted, reduced, timed, or chained together using a stack of modifiers.</i> <br>
-### Version 1.1.1.0
+### Version 1.2.0.0
 
-[<img src="https://placehold.co/200x50/4493f8/FFF?text=Download&font=montserrat" width="200"/>](https://github.com/SalmanShhh/C3Addon_statforge/releases/download/salmanshh_statforge-1.1.1.0.c3addon/salmanshh_statforge-1.1.1.0.c3addon)
+[<img src="https://placehold.co/200x50/4493f8/FFF?text=Download&font=montserrat" width="200"/>](https://github.com/SalmanShhh/C3Addon_statforge/releases/download/salmanshh_statforge-1.2.0.0.c3addon/salmanshh_statforge-1.2.0.0.c3addon)
 <br>
 <sub> [See all releases](https://github.com/SalmanShhh/C3Addon_statforge/releases) </sub> <br>
 
-#### What's New in 1.1.1.0
-- **Added:** initial release
+#### What's New in 1.2.0.0
+- **Added:** - Add scripting API and refactor ACEs to use it
+- **Added:** - Update Guide/Documentation
 
 <sub>[View full changelog](#changelog)</sub>
 
@@ -193,6 +194,7 @@ npm run dev
 | StatAddSum | Returns the raw sum of all active 'Add' mode buff values on the stat, before multipliers or overrides are applied. | number | Stat *(string)* <br> | 
 | StatBase | Returns the base value of the named stat before any buffs are applied. Returns 0 if no base has been set. | number | Stat *(string)* <br> | 
 | StatMultiplier | Returns the combined multiplier for the stat: 1 + (sum of all active Multiply buff values / 100). Returns 1.0 if no multiply buffs are active (meaning no bonus). | number | Stat *(string)* <br> | 
+| StatMultiplierPercent | Returns the combined multiplier for the stat as a percentage bonus. For example, a multiplier of 1.5 returns 50, and 1.0 (no bonus) returns 0. | number | Stat *(string)* <br> | 
 | StatTotal | Returns the fully computed total of the named stat: base + add buffs, then multiplied by multiply buffs, then overridden if any override buffs are active. This is the main value to use in your game logic. | number | Stat *(string)* <br> | 
 | CountBuffTags | Returns how many tags the given buff has. Returns 0 if the buff does not exist. | number | Buff ID *(string)* <br> | 
 | GetBuffTagByIndex | Returns the tag at the given index on the specified buff. Returns an empty string if out of range. Pair with CountBuffTags. | string | Buff ID *(string)* <br>Index *(number)* <br> | 
@@ -200,6 +202,10 @@ npm run dev
 
 ---
 ## Changelog
+
+**1.2.0.0**
+- **Added:** - Add scripting API and refactor ACEs to use it
+- **Added:** - Update Guide/Documentation
 
 **1.1.1.0**
 - **Added:** initial release

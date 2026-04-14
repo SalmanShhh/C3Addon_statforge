@@ -8,5 +8,10 @@
     "added": "initial release",
     "changed": "",
     "fixed": ""
+  },
+  "1.2.0.0": {
+    "added": "- Add scripting API and refactor ACEs to use it\n- Update Guide/Documentation",
+    "changed": "",
+    "fixed": ""
   }
 }

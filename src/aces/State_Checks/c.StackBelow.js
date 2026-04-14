@@ -11,5 +11,5 @@ export const config = {
 export const expose = false;
 
 export default function (statId, value) {
-  return this._computeStatTotal(statId) < value;
+  return this.stackBelow(statId, value);
 }

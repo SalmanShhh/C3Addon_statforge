@@ -10,6 +10,5 @@ export const config = {
 export const expose = false;
 
 export default function (buffId) {
-  const buff = this._buffMap.get(buffId);
-  return buff ? buff.temporary : false;
+  return this.isBuffTemporary(buffId);
 }

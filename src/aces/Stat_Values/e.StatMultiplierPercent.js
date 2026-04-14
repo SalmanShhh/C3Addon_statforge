@@ -1,6 +1,6 @@
 export const config = {
   returnType: "number",
-  description: "Returns the number of active buffs targeting the given stat.",
+  description: "Returns the combined multiplier for the stat as a percentage bonus. For example, a multiplier of 1.5 returns 50, and 1.0 (no bonus) returns 0.",
   params: [
     { id: "stat", name: "Stat", desc: "The stat name.", type: "string" },
   ],
@@ -9,5 +9,5 @@ export const config = {
 export const expose = false;
 
 export default function (stat) {
-  return this.countActiveBuffsOnStat(stat);
+  return this.statMultiplierPercent(stat);
 }

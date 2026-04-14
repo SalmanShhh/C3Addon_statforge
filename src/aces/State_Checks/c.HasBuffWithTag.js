@@ -10,8 +10,5 @@ export const config = {
 export const expose = false;
 
 export default function (tag) {
-  for (const buff of this._buffMap.values()) {
-    if (buff.tags.has(tag)) return true;
-  }
-  return false;
+  return this.hasBuffWithTag(tag);
 }

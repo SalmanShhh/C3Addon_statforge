@@ -10,12 +10,5 @@ export const config = {
 export const expose = false;
 
 export default function (stat, index) {
-  let i = 0;
-  for (const buff of this._buffMap.values()) {
-    if (buff.stat === stat) {
-      if (i === index) return buff.id;
-      i++;
-    }
-  }
-  return "";
+  return this.getBuffOnStatByIndex(stat, index);
 }

@@ -9,7 +9,5 @@ export const config = {
 export const expose = false;
 
 export default function (buffId) {
-  const buff = this._buffMap.get(buffId);
-  if (!buff) return -1;
-  return buff.active ? 1 : 0;
+  return this.buffActiveState(buffId);
 }

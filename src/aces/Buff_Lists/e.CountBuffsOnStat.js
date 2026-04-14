@@ -9,7 +9,5 @@ export const config = {
 export const expose = false;
 
 export default function (stat) {
-  let count = 0;
-  for (const buff of this._buffMap.values()) { if (buff.stat === stat) count++; }
-  return count;
+  return this.countBuffsOnStat(stat);
 }
