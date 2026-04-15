@@ -11,5 +11,5 @@ export const expose = true;
 
 export default function (buffId) {
   const buff = this._buffMap.get(buffId);
-  if (buff) this._setBuffActive(buffId, !buff.active);
+  if (buff) this.SetBuffActive(buffId, !buff.active);
 }

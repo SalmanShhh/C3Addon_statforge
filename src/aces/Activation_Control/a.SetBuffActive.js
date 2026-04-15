@@ -11,5 +11,12 @@ export const config = {
 export const expose = true;
 
 export default function (buffId, active) {
-  this._setBuffActive(buffId, active);
+  const buff = this._buffMap.get(buffId);
+  if (!buff || buff.active === active) return;
+  const prevTotal = this._computeStatTotal(buff.stat);
+  buff.active = active;
+  this._setLastBuffContext(buff);
+  this._trigger(active ? "OnBuffActivated" : "OnBuffDeactivated");
+  this._resolveLinksForBuff(buffId, active ? "activated" : "deactivated");
+  this._notifyStatChangedIfChanged(buff.stat, prevTotal);
 }

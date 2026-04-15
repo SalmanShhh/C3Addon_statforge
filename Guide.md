@@ -1619,7 +1619,9 @@ The name used (`StatForge`) is the **behavior's name in your project**, not the 
 
 ### Calling actions from script
 
-All actions are directly callable because every action ACE has `expose: true`. Method names are **PascalCase** matching the ACE ID (derived from the file name):
+All actions are directly callable because every action ACE has `expose: true`. The method name is **PascalCase** matching the ACE filename (`a.RemoveBuff.js` → `sf.RemoveBuff()`). Because `expose: true` copies the ACE function itself onto the prototype — not a thin wrapper — calling an action from script is identical to calling it from the event sheet: the same triggers fire (`OnBuffRemoved`, `OnStatChanged`, etc.), the same buff links resolve, and the same stat recalculations happen.
+
+Parameter order matches the ACE's param list exactly:
 
 ```js
 // Add a permanent buff
@@ -1653,7 +1655,9 @@ sf.SetBuffActive("my_buff", false);
 sf.ToggleBuffActive("stealth_penalty");
 ```
 
-> **Combo parameters are 0-based indices in script.** `AddBuffFull` takes `mode` as `0` (add), `1` (multiply), or `2` (override) — not the string `"add"`. This applies to any action with a dropdown (combo) parameter.
+> **Combo parameters are 0-based indices in script.** `AddBuffFull` takes `mode` as `0` (add), `1` (multiply), or `2` (override) — not the string `"add"`. This applies to any action with a dropdown (combo) parameter. Check the tooltip or event sheet parameter list to find the index order.
+
+> **To discover any action's parameter order**, hover over it in the event sheet or read the ACE category section of this guide. The parameter order in script is identical to the event sheet parameter order.
 
 ### Reading state from script
 

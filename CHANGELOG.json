@@ -18,5 +18,10 @@
     "added": "",
     "changed": "",
     "fixed": ""
+  },
+  "1.3.0.0": {
+    "added": "fix things up for scripting support.",
+    "changed": "",
+    "fixed": ""
   }
 }

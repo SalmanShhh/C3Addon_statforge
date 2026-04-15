@@ -14,5 +14,5 @@ export default function (stat) {
   for (const [buffId, buff] of this._buffMap) {
     if (buff.stat === stat) toRemove.push(buffId);
   }
-  for (const buffId of toRemove) this._removeBuff(buffId);
+  for (const buffId of toRemove) this.RemoveBuff(buffId);
 }

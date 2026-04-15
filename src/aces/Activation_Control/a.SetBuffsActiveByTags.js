@@ -27,5 +27,5 @@ export default function (tags, matchMode, active) {
       : [...tagSet].some(t => buff.tags.has(t));
     if (match) matching.push(buffId);
   }
-  for (const buffId of matching) this._setBuffActive(buffId, active);
+  for (const buffId of matching) this.SetBuffActive(buffId, active);
 }

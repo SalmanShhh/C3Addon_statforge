@@ -15,5 +15,5 @@ export default function (source, active) {
   for (const [buffId, buff] of this._buffMap) {
     if (buff.source === source) matching.push(buffId);
   }
-  for (const buffId of matching) this._setBuffActive(buffId, active);
+  for (const buffId of matching) this.SetBuffActive(buffId, active);
 }

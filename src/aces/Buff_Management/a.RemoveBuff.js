@@ -10,5 +10,12 @@ export const config = {
 export const expose = true;
 
 export default function (buffId) {
-  this._removeBuff(buffId);
+  const buff = this._buffMap.get(buffId);
+  if (!buff) return;
+  const prevTotal = this._computeStatTotal(buff.stat);
+  this._buffMap.delete(buffId);
+  this._setLastBuffContext(buff);
+  this._trigger("OnBuffRemoved");
+  this._resolveLinksForBuff(buffId, "removed");
+  this._notifyStatChangedIfChanged(buff.stat, prevTotal);
 }

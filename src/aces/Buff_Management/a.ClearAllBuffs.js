@@ -9,6 +9,6 @@ export const expose = true;
 
 export default function () {
   const ids = Array.from(this._buffMap.keys());
-  for (const buffId of ids) this._removeBuff(buffId);
+  for (const buffId of ids) this.RemoveBuff(buffId);
   this._trigger("OnStackCleared");
 }

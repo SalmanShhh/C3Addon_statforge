@@ -243,17 +243,6 @@ export default function (parentClass) {
       this._notifyStatChangedIfChanged(entry.stat, prevTotal);
     }
 
-    _removeBuff(buffId) {
-      const buff = this._buffMap.get(buffId);
-      if (!buff) return;
-      const prevTotal = this._computeStatTotal(buff.stat);
-      this._buffMap.delete(buffId);
-      this._setLastBuffContext(buff);
-      this._trigger("OnBuffRemoved");
-      this._resolveLinksForBuff(buffId, "removed");
-      this._notifyStatChangedIfChanged(buff.stat, prevTotal);
-    }
-
     _expireBuff(buffId) {
       const buff = this._buffMap.get(buffId);
       if (!buff) return;
@@ -264,17 +253,6 @@ export default function (parentClass) {
       this._trigger("OnBuffRemoved");
       this._resolveLinksForBuff(buffId, "expired");
       this._resolveLinksForBuff(buffId, "removed");
-      this._notifyStatChangedIfChanged(buff.stat, prevTotal);
-    }
-
-    _setBuffActive(buffId, active) {
-      const buff = this._buffMap.get(buffId);
-      if (!buff || buff.active === active) return;
-      const prevTotal = this._computeStatTotal(buff.stat);
-      buff.active = active;
-      this._setLastBuffContext(buff);
-      this._trigger(active ? "OnBuffActivated" : "OnBuffDeactivated");
-      this._resolveLinksForBuff(buffId, active ? "activated" : "deactivated");
       this._notifyStatChangedIfChanged(buff.stat, prevTotal);
     }
 
@@ -294,11 +272,11 @@ export default function (parentClass) {
       this._lastFiredLinkSourceBuff = link.sourceBuffId;
       this._lastFiredLinkTargetBuff = link.targetBuffId;
       this._trigger("OnBuffLinkFired");
-      if      (link.targetAction === "remove")       this._removeBuff(link.targetBuffId);
-      else if (link.targetAction === "activate")     this._setBuffActive(link.targetBuffId, true);
-      else if (link.targetAction === "deactivate")   this._setBuffActive(link.targetBuffId, false);
+      if      (link.targetAction === "remove")       this.RemoveBuff(link.targetBuffId);
+      else if (link.targetAction === "activate")     this.SetBuffActive(link.targetBuffId, true);
+      else if (link.targetAction === "deactivate")   this.SetBuffActive(link.targetBuffId, false);
       else if (link.targetAction === "toggle_active" && target) {
-        this._setBuffActive(link.targetBuffId, !target.active);
+        this.SetBuffActive(link.targetBuffId, !target.active);
       }
     }
 

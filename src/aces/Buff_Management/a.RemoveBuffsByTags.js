@@ -26,5 +26,5 @@ export default function (tags, matchMode) {
       : [...tagSet].some(t => buff.tags.has(t));
     if (match) toRemove.push(buffId);
   }
-  for (const buffId of toRemove) this._removeBuff(buffId);
+  for (const buffId of toRemove) this.RemoveBuff(buffId);
 }
